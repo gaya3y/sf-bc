@@ -6,4 +6,4 @@ if [ $? -ne 0 ]; then
 fi
 
 export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres
-# uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8000
