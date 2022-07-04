@@ -18,3 +18,11 @@ def get_user_by_username(connection,username):
 
 def get_user_by_id(connection,userid):
     return connection.query(User).filter(User.id == userid).first()
+
+def add_user_connection(db_conn, user, following):
+    user.following.append(following)
+    db_conn.commit()
+
+def remove_user_connection(db_conn, user, following):
+    user.following.remove(following)
+    db_conn.commit()

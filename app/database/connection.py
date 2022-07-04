@@ -3,7 +3,7 @@ Database connection utils
 """
 from os import environ
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm.session import sessionmaker
 
@@ -32,3 +32,5 @@ def verify_postgres():
 Base = declarative_base()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=set_up_database())
+
+metadata_obj = MetaData()
