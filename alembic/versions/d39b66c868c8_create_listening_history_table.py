@@ -23,7 +23,7 @@ def upgrade() -> None:
         sa.Column("user_id", sa.Integer, sa.ForeignKey("users.id")),
         sa.Column("song_id", sa.Integer, sa.ForeignKey("songs.id")),
         sa.Column("start_time", sa.DateTime, nullable=False, server_default=sa.func.now()),
-        sa.Column("end_time", sa.DateTime, nullable=False),
+        sa.Column("end_time", sa.DateTime),
     )
 
 

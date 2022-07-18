@@ -1,26 +1,49 @@
 from fastapi import APIRouter, Depends
-from app.core.database_crud import create_listening_history_record
-from app.core.dependencies import get_song_or_404
+from app.core.database_crud import create_listening_history_record, create_song, get_listening_history_of_user, get_songs_from_db, mark_end_of_song
+from app.core.datamodels import Song, SongCreate
+from app.core.dependencies import get_history_or_404, get_song_or_404
 from app.users.dependencies import get_current_user
 from app.database.dependency import get_db
 
 router = APIRouter(
-    prefix="/songs"
+    prefix=""
 )
 
-@router.post("/history/{song_id}")
+@router.post("/history")
 def listen_to_song(
     song = Depends(get_song_or_404),
     database_conn = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    create_listening_history_record(database_conn, song.id, user.id)
+    return create_listening_history_record(database_conn, song.id, user.id)
+
+@router.patch("/history/{history_id}")
+def mark_song_ended(
+    history = Depends(get_history_or_404),
+    database_conn = Depends(get_db),    
+):
+    return mark_end_of_song(database_conn, history)
 
 
 @router.get("/history")
 def get_listening_history(
+    limit: int = 100,
+    offset: int = 0,
     database_conn = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(get_current_user),
 ):
-    pass
+    return get_listening_history_of_user(database_conn, user.id, limit=limit, offset=offset)
 
+
+@router.get("/songs")
+def get_songs(
+    limit: int = 100,
+    offset: int = 0,
+    database_conn = Depends(get_db),
+):
+    return [Song.from_orm(song) for song in get_songs_from_db(database_conn, limit=limit, offset=offset)]
+
+
+@router.post("/songs", dependencies=[Depends(get_current_user)])
+def new_song(song: SongCreate, database_conn = Depends(get_db)):
+    return create_song(database_conn, song)
