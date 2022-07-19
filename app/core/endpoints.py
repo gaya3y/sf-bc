@@ -1,6 +1,7 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from app.core.database_crud import create_listening_history_record, create_song, get_listening_history_of_user, get_songs_from_db, mark_end_of_song
-from app.core.datamodels import Song, SongCreate
+from app.core.datamodels import ListeningHistory, Song, SongCreate
 from app.core.dependencies import get_history_or_404, get_song_or_404
 from app.recommender.basic_recommender import BasicRecommender
 from app.recommender.db_crud import db_get_favorite_songs
@@ -27,14 +28,15 @@ def mark_song_ended(
     return mark_end_of_song(database_conn, history)
 
 
-@router.get("/history")
+@router.get("/history", response_model=List[ListeningHistory])
 def get_listening_history(
     limit: int = 100,
     offset: int = 0,
     database_conn = Depends(get_db),
     user = Depends(get_current_user),
 ):
-    return get_listening_history_of_user(database_conn, user.id, limit=limit, offset=offset)
+    data = get_listening_history_of_user(database_conn, user.id, limit=limit, offset=offset)
+    return [ListeningHistory.from_orm(history) for history in data]
 
 
 @router.get("/songs")

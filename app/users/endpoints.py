@@ -17,8 +17,7 @@ def signup(user: UserCreate, database_conn = Depends(get_db)):
     return create_user(database_conn, user)
 
 @router.get("/list")
-def view( database_conn = Depends(get_db),user = Depends(get_current_user)):
-    print(user.username)
+def view( database_conn = Depends(get_db)):
     return [User.from_orm(user) for user in list_user(database_conn)]
  
 @router.post("/login")

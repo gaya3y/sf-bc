@@ -2,8 +2,8 @@ from datetime import datetime
 import logging
 from app.core.models import Artist, Genre, ListeningHistory, Song
 
-def create_listening_history_record(connecion, song_id, user_id):
-    record = ListeningHistory(song_id=song_id, user_id=user_id)
+def create_listening_history_record(connecion, song_id, user_id, end_time=None):
+    record = ListeningHistory(song_id=song_id, user_id=user_id, end_time=end_time)
     connecion.add(record)
     connecion.commit()
     connecion.refresh(record)
@@ -32,7 +32,7 @@ def get_listening_history_of_user(connection, user_id, song_id=None, limit=None,
     if limit:
         query = query.limit(limit)
     if offset:
-        query = query.offset(offset)
+        query = query.offset(offset * limit)
 
     return query.all()
 
@@ -48,7 +48,7 @@ def get_songs_from_db(connection, limit=None, offset=None, song_ids=None):
     if limit:
         query = query.limit(limit)
     if offset:
-        query = query.offset(offset)
+        query = query.offset(offset * limit)
     return query.all()
 
 

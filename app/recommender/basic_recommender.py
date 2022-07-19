@@ -55,6 +55,8 @@ class BasicRecommender:
             count = weight // 0.1
             songs = db_get_popular_songs_by_genre(db_session, genre, user_listened_recently, count)
             i = 0
+            if count == 0:
+                continue
             for song in songs:
                 song["weight"] = weight * (1 - i / count)
                 i += 1
@@ -62,7 +64,8 @@ class BasicRecommender:
         
         for genre, weight in weighed_artists.items():
             count = weight // 0.1
-
+            if count == 0:
+                continue
             i = 0
             for song in songs:
                 song["weight"] = weight * (1 - i / count)
