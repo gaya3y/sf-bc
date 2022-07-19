@@ -6,6 +6,7 @@ from app.users.database_crud import add_user_connection, create_user, get_user_b
 from app.users.datamodels import UserCreate, User
 from app.users.auth import create_access_token,verify_password
 from app.users.dependencies import get_current_user
+from app.recommender.basic_recommender import BasicRecommender
 
 
 router = APIRouter(
@@ -14,10 +15,10 @@ router = APIRouter(
 
 @router.post("/create")
 def signup(user: UserCreate, database_conn = Depends(get_db)):
-    return create_user(database_conn, user)
+    return User.from_orm(create_user(database_conn, user))
 
 @router.get("/list")
-def view( database_conn = Depends(get_db)):
+def view(database_conn = Depends(get_db)):
     return [User.from_orm(user) for user in list_user(database_conn)]
  
 @router.post("/login")
@@ -33,7 +34,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), database_conn = Depe
     if verify_password(form_data.password, user_in_db.password):
         return {"access_token": create_access_token(user_in_db.id), "token_type": "Bearer"}
 
-        
     raise error
 
 
@@ -61,3 +61,8 @@ def remove_connection(username: str, database_conn = Depends(get_db),user = Depe
         raise HTTPException(status_code=400, detail="You are not following this user")
 
     remove_user_connection(database_conn, user, target_user)
+
+
+@router.get("/recommendations")
+def recommendations(user = Depends(get_current_user)):
+    return BasicRecommender.recommend_users(user_id=user.id)

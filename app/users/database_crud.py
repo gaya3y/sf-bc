@@ -10,8 +10,13 @@ def create_user(connection, user_data):
     connection.refresh(user_obj)
     return user_obj
 
-def list_user(connection):
-    return connection.query(User).all()
+def list_user(connection, limit = None, offset = None):
+    query = connection.query(User)
+    if limit:
+        query = query.limit(limit)
+    if offset:
+        query = query.offset(limit * offset)
+    return query.all()
 
 def get_user_by_username(connection,username):
     return connection.query(User).filter(User.username == username).first()

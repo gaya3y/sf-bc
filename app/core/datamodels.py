@@ -34,7 +34,10 @@ class ListeningHistory(BaseModel):
     @classmethod
     def from_orm(cls, orm):
         instance = super().from_orm(orm)
-        instance.duration = (orm.end_time - orm.start_time).total_seconds()
+        if orm.end_time:
+            instance.duration = (orm.end_time - orm.start_time).total_seconds()
+        else:
+            instance.duration = min((datetime.utcnow() - orm.start_time).total_seconds(), orm.song.duration)
         instance.timestamp = orm.start_time
         return instance
 
