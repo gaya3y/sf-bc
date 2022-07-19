@@ -19,12 +19,15 @@ def mark_end_of_song(connection, history):
     return history
 
 
-def get_listening_history_of_user(connection, user_id, song_id=None, limit=None, offset=None):
+def get_listening_history_of_user(connection, user_id, song_id=None, limit=None, offset=None, timedelta=None):
     query = connection.query(ListeningHistory).filter(ListeningHistory.user_id == user_id)
     if song_id:
         query = query.filter(ListeningHistory.song_id == song_id)
-    
+
     query = query.order_by(ListeningHistory.start_time.desc())
+
+    if timedelta:
+        query = query.filter(ListeningHistory.start_time >= (datetime.utcnow() - timedelta))
 
     if limit:
         query = query.limit(limit)
@@ -38,8 +41,10 @@ def get_history_by_id(connection, history_id):
     return connection.query(ListeningHistory).get(history_id)
 
 
-def get_songs_from_db(connection, limit=None, offset=None):
+def get_songs_from_db(connection, limit=None, offset=None, song_ids=None):
     query = connection.query(Song)
+    if song_ids:
+        query = query.filter(Song.id.in_(song_ids))
     if limit:
         query = query.limit(limit)
     if offset:
@@ -60,14 +65,14 @@ def get_genres(connection, names):
 
 
 def create_song(connnection, song):
-    artists = get_artists(connnection, song.artists)
-    genres = get_genres(connnection, song.genres)
+    artists = {artist.name: artist for artist in get_artists(connnection, song.artists)}
+    genres = {genre.name: genre for genre in get_genres(connnection, song.genres)}
 
-    new_artists = [artist for artist in song.artists if artist not in artists]
-    new_genres = [genre for genre in song.genres if genre not in genres]
+    new_artists = [artist for artist in song.artists if artist not in artists.keys()]
+    new_genres = [genre for genre in song.genres if genre not in genres.keys()]
 
-    existing_artists = [artist for artist in artists if artist.name in song.artists]
-    existing_genres = [genre for genre in genres if genre.name in song.genres]
+    existing_artists = [artist for (name, artist) in artists.items() if name in song.artists]
+    existing_genres = [genre for (name, genre) in genres.items() if name in song.genres]
 
     song_obj = Song(**song.dict(exclude={"artists", "genres"}))
     song_obj.artists.extend(existing_artists)

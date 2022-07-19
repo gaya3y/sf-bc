@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from app.core.database_crud import create_listening_history_record, create_song, get_listening_history_of_user, get_songs_from_db, mark_end_of_song
 from app.core.datamodels import Song, SongCreate
 from app.core.dependencies import get_history_or_404, get_song_or_404
+from app.recommender.basic_recommender import BasicRecommender
+from app.recommender.db_crud import db_get_favorite_songs
 from app.users.dependencies import get_current_user
 from app.database.dependency import get_db
 
@@ -47,3 +49,8 @@ def get_songs(
 @router.post("/songs", dependencies=[Depends(get_current_user)])
 def new_song(song: SongCreate, database_conn = Depends(get_db)):
     return create_song(database_conn, song)
+
+
+@router.get("/songs/recommendations")
+def recommended_songs(database = Depends(get_db), current_user = Depends(get_current_user)):
+    return BasicRecommender.recommend_songs(current_user.id)

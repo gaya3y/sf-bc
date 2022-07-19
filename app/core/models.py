@@ -7,10 +7,13 @@ class ListeningHistory(Base):
     __tablename__ = "listening_history"
 
     id = Column("id", Integer, primary_key=True)
-    user_id = Column("user_id", Integer, nullable=False)
-    song_id = Column("song_id", Integer, nullable=False)
+    user_id = Column("user_id", Integer, ForeignKey("users.id"), nullable=False)
+    song_id = Column("song_id", Integer, ForeignKey("songs.id"), nullable=False)
     start_time = Column("start_time", DateTime, nullable=False, server_default=func.now())
     end_time =  Column("end_time", DateTime)
+
+    song = relationship("Song")
+    user = relationship("User")
 
 
 class Artist(Base):
