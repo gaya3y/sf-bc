@@ -9,6 +9,7 @@ class SongCreate(BaseModel):
     genres: List[str]
     duration: int
     url: str
+    image: Optional[str]
 
 
 class Song(SongCreate):

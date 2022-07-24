@@ -64,5 +64,5 @@ def remove_connection(username: str, database_conn = Depends(get_db),user = Depe
 
 
 @router.get("/recommendations")
-def recommendations(user = Depends(get_current_user)):
-    return BasicRecommender.recommend_users(user_id=user.id)
+def recommendations(user = Depends(get_current_user), db_session = Depends(get_db)):
+    return BasicRecommender.recommend_users(user_id=user.id, db_session=db_session)

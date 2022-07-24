@@ -50,6 +50,7 @@ class Song(Base):
     name = Column("name", String, nullable=False)
     duration = Column("duration", Integer, nullable=False)
     url = Column("url", String, nullable=False)
+    image = Column("image", String, default="https://upload.wikimedia.org/wikipedia/commons/6/6a/Youtube_Music_icon.svg", nullable=False)
 
     artists = relationship(
         "Artist",

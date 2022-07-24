@@ -31,6 +31,8 @@ def verify_postgres():
 
 Base = declarative_base()
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=set_up_database())
+engine = set_up_database()
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 metadata_obj = MetaData()

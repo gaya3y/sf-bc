@@ -43,9 +43,10 @@ def get_listening_history(
 def get_songs(
     limit: int = 100,
     offset: int = 0,
+    q: str = None,
     database_conn = Depends(get_db),
 ):
-    return [Song.from_orm(song) for song in get_songs_from_db(database_conn, limit=limit, offset=offset)]
+    return [Song.from_orm(song) for song in get_songs_from_db(database_conn, limit=limit, offset=offset, q=q)]
 
 
 @router.post("/songs", dependencies=[Depends(get_current_user)])
@@ -54,5 +55,5 @@ def new_song(song: SongCreate, database_conn = Depends(get_db)):
 
 
 @router.get("/songs/recommendations")
-def recommended_songs(database = Depends(get_db), current_user = Depends(get_current_user)):
-    return BasicRecommender.recommend_songs(current_user.id)
+def recommended_songs(db_session = Depends(get_db), current_user = Depends(get_current_user)):
+    return BasicRecommender.recommend_songs(db_session, current_user.id)

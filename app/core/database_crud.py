@@ -41,10 +41,12 @@ def get_history_by_id(connection, history_id):
     return connection.query(ListeningHistory).get(history_id)
 
 
-def get_songs_from_db(connection, limit=None, offset=None, song_ids=None):
+def get_songs_from_db(connection, limit=None, offset=None, song_ids=None, q=None):
     query = connection.query(Song)
     if song_ids:
         query = query.filter(Song.id.in_(song_ids))
+    if q:
+        query = query.filter(Song.name.ilike("%" + q + "%"))
     if limit:
         query = query.limit(limit)
     if offset:

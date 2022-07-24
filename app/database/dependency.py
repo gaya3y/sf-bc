@@ -2,7 +2,7 @@
 Database dependencies
 """
 from app.database.connection import SessionLocal
-
+from app.database.connection import engine
 
 def get_db():
     """

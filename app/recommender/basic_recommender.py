@@ -1,6 +1,7 @@
 from datetime import timedelta
 import logging
 from app.core.database_crud import get_listening_history_of_user, get_songs_from_db
+from app.core.datamodels import Song
 from app.database.dependency import get_db
 from app.recommender.db_crud import db_get_favorite_songs, db_get_popular_songs_by_genre
 from app.users.database_crud import list_user
@@ -46,8 +47,7 @@ class BasicRecommender:
 
 
     @classmethod
-    def recommend_songs(cls, user_id):
-        db_session = next(get_db())
+    def recommend_songs(cls, db_session, user_id):
         weighed_genres, weighed_artists = cls.compute_artists_genres_weights(db_session, user_id)
         recommendations = []
         user_listened_recently = [
@@ -84,14 +84,13 @@ class BasicRecommender:
         songs = get_songs_from_db(db_session, song_ids=unique_recommendation_ids)
         for song_id in unique_recommendation_ids:
             final_recommendations.append({
-                "song": next(filter(lambda x: x.id == song_id, songs)),
+                "song": Song.from_orm(next(filter(lambda x: x.id == song_id, songs))),
                 "weight": sum([song["weight"] for song in recommendations if song["song_id"] == song_id])
             })
         return sorted(final_recommendations, key=lambda x: x["weight"], reverse=True)
 
     @classmethod
-    def recommend_users(cls, user_id, count=10):
-        db_session = next(get_db())
+    def recommend_users(cls, db_session, user_id, count=10):
         current_weighed_genres, current_weighed_artists = cls.compute_artists_genres_weights(db_session, user_id)
         current_offset = 0
         targets = []
