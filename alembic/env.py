@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+from os import environ
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -9,7 +10,9 @@ from alembic import context
 # access to the values within the .ini file in use.
 config = context.config
 
-url = "postgresql://postgres:postgres@localhost:5432/postgres"
+url = environ.get("DATABASE_URL")
+url = url.replace("postgres://", "postgresql://", 1)
+    
 config.set_main_option("sqlalchemy.url", url)
 
 # Interpret the config file for Python logging.
