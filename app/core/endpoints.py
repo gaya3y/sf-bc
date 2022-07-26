@@ -57,3 +57,8 @@ def new_song(song: SongCreate, database_conn = Depends(get_db)):
 @router.get("/songs/recommendations")
 def recommended_songs(db_session = Depends(get_db), current_user = Depends(get_current_user)):
     return BasicRecommender.recommend_songs(db_session, current_user.id)
+
+@router.get("/songs/favorite")
+def get_favourite_songs(db_session = Depends(get_db), current_user = Depends(get_current_user)):
+    song_ids = [i["song_id"] for i in db_get_favorite_songs(db_session, current_user.id)]
+    return [Song.from_orm(i) for i in get_songs_from_db(db_session, song_ids=song_ids)]

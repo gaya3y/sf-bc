@@ -4,7 +4,7 @@ from app.core.database_crud import get_listening_history_of_user, get_songs_from
 from app.core.datamodels import Song
 from app.database.dependency import get_db
 from app.recommender.db_crud import db_get_favorite_songs, db_get_popular_songs_by_genre
-from app.users.database_crud import list_user
+from app.users.database_crud import get_user_by_id, list_user
 from app.users.datamodels import User
 
 
@@ -95,12 +95,14 @@ class BasicRecommender:
         current_offset = 0
         targets = []
         cutoff = 0.5
+        current_user = get_user_by_id(db_session, user_id)
+        following = [i.id for i in current_user.following]
         while len(targets) < count:
             users = list_user(db_session, 500, current_offset)
             if len(users) == 0:
                 break
             for user in users:
-                if user.id == user_id:
+                if user.id == user_id or user.id in following:
                     continue
                 weighed_genres, weighed_artists = cls.compute_artists_genres_weights(db_session, user.id)
                 all_genres = set(current_weighed_genres.keys()) | set(weighed_genres.keys())
